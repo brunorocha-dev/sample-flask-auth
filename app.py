@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from models.user import User
 from database import db 
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 
 app = Flask(__name__)
 # Configurações para o flask: (proteger as informações armazenadas)
@@ -17,7 +17,7 @@ login_manager.login_view = "login"
 #  ‘ session ‘ ← Conexão ativa
 
 @login_manager.user_loader
-def load_user(user_id): # nenhum valor for fornecido para callback quando a função load_user é chamada, o valor de callback será None.
+def load_user(user_id):
     return User.query.get(user_id)
 
 # Recebendo as credenciais no corpo da requisição
@@ -35,9 +35,15 @@ def login():
         if user and user.password == password:
             login_user(user) # Autenticação
             print(current_user.is_authenticated) # Armazena se esse usuário está autenticado, imprimindo na tela
-            return jsonify ({"message": "Autenticação realizada com sucesso"}), 200
+            return jsonify ({"message": "Autenticação realizada com sucesso"})
          
     return jsonify ({"message": "Credenciais inválidas"}), 400
+# logout do usuário
+@app.route("/logout", methods=["GET"])
+@login_required # a partir daqui esta rota vai estar protegida.
+def logout():
+    logout_user()
+    return jsonify({"message": "Logout realizado com sucesso"})
 
 @app.route("/hello-world", methods=["GET"])
 def hello_word():
