@@ -21,7 +21,7 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 # Recebendo as credenciais no corpo da requisição
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST"]) 
 def login():
     data = request.json
     username = data.get("username")
@@ -38,12 +38,30 @@ def login():
             return jsonify ({"message": "Autenticação realizada com sucesso"})
          
     return jsonify ({"message": "Credenciais inválidas"}), 400
+
 # logout do usuário
-@app.route("/logout", methods=["GET"])
-@login_required # a partir daqui esta rota vai estar protegida.
+@app.route("/logout", methods=["GET"]) 
+# a partir daqui esta rota vai estar protegida.
+@login_required 
 def logout():
     logout_user()
     return jsonify({"message": "Logout realizado com sucesso"})
+
+# Cadastrar novas usuários
+@app.route("/user", methods=["POST"])
+@login_required 
+def create_user():
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+    
+    if username and password:
+        user = User(username=username, password=password)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify ({"message": "Usuário cadastrado com sucesso!"})
+        
+    return jsonify ({"message": "Dados inválidos"}), 400
 
 @app.route("/hello-world", methods=["GET"])
 def hello_word():
