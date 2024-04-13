@@ -5,9 +5,7 @@ from flask_login import LoginManager, login_user, current_user, logout_user, log
 import bcrypt
 
 app = Flask(__name__)
-# Configurações para o flask: (proteger as informações armazenadas)
 app.config["SECRET_KEY"] = "your_secret_key"
-# URI - Caminho aonde o banco vai ser conectado SQL
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:admin123@127.0.0.1:3306/flask-crud"
 
 login_manager = LoginManager()
@@ -30,25 +28,23 @@ def login():
     
     if username and password:
         #login
-        # Recuperando registros de usuário na base de dados.
         user = User.query.filter_by(username=username).first()
     
         if user and bcrypt.checkpw(str.encode(password), str.encode(user.password)):
-            login_user(user) # Autenticação
-            print(current_user.is_authenticated) # Armazena se esse usuário está autenticado, imprimindo na tela
+            login_user(user) 
+            print(current_user.is_authenticated)
             return jsonify ({"message": "Autenticação realizada com sucesso"})
          
     return jsonify ({"message": "Credenciais inválidas"}), 400
 
-# logout do usuário
+
 @app.route("/logout", methods=["GET"]) 
-# a partir daqui esta rota vai estar protegida.
 @login_required 
 def logout():
     logout_user()
     return jsonify({"message": "Logout realizado com sucesso"})
 
-# CRUD - Create
+# CRUD
 @app.route("/user", methods=["POST"]) 
 def create_user():
     data = request.json
@@ -64,7 +60,6 @@ def create_user():
         
     return jsonify ({"message": "Dados inválidos"}), 400
 
-# CRUD - Read
 @app.route("/user/<int:id_user>", methods=["GET"])
 @login_required
 def read_user(id_user):
@@ -75,7 +70,6 @@ def read_user(id_user):
     
     return jsonify({"message": "Usuário não encontrado!"}), 404
 
-# CRUD - Update
 @app.route("/user/<int:id_user>", methods=["PUT"])
 @login_required
 def update_user(id_user):
@@ -93,7 +87,6 @@ def update_user(id_user):
     
     return jsonify({"message": "Usuário não encontrado!"}), 404
 
-# CRUD - Delete
 @app.route("/user/<int:id_user>", methods=["DELETE"])
 @login_required
 def delete_user(id_user):
